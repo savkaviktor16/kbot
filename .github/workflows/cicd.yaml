@@ -45,15 +45,16 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: echo "VERSION=$(shell git describe --tags --abbrev=0)-$(shell git rev-parse --short HEAD)" >> $GITHUB_ENV
+      - run: echo "VERSION=$(git describe --tags --abbrev=0)-$(git rev-parse --short HEAD)" >> $GITHUB_ENV
 
       - uses: mikefarah/yq@master
         with:
           cmd: yq -i '.image.tag=strenv(VERSION)' helm/values.yaml
 
-      - run: |
+      - name: Commit Helm chart changes
+        run: |
           git config --global user.name github-actions
           git config --global user.email github-actions@github.com
-          git commit -am "Update version to $VERSION"
+          git commit -am "Update version to ${{ env.VERSION }}"
           git push
       
